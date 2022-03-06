@@ -27,7 +27,7 @@ void MainWindow::buildChart(const vector<qreal>	&sample)
 	chart->addAxis(axisY, Qt::AlignLeft);
 	chart->setTitle("Гистограмма");
 	chart->setAnimationOptions(QChart::SeriesAnimations);
-	chart->legend()->hide(); // Скрыть легенду
+	chart->legend()->hide();
 	chart->isZoomed();
 
 	layout()->addWidget(chartview);
