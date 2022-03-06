@@ -1,6 +1,7 @@
 #pragma once
 #include <QValueAxis>
 #include <QBarSeries>
+#include "AxisHistogram.hpp"
 
 template<typename Type>
 class Histogram
