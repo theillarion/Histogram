@@ -1,7 +1,7 @@
 #pragma once
 #include <QValueAxis>
 #include <QBarSeries>
-#include "AxisHistogram.hpp"
+#include "Axis.hpp"
 
 template<typename Type>
 class Histogram
@@ -59,8 +59,8 @@ inline QBarSeries* Histogram<Type>::getDatasetHistogram() const
 template<typename Type>
 inline std::tuple<QValueAxis*, QValueAxis*> Histogram<Type>::getAxesHistogram()
 {
-	AxisHistogram			axisX;
-	AxisHistogram			axisY;
+	Axis	axisX;
+	Axis	axisY;
 
 	axisX.initial("X", interval[0], interval[interval.size() - 1], 11);
 	axisY.initial("Y", 0, *std::max_element(height.begin(), height.end()), 5);

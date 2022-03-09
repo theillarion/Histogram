@@ -38,8 +38,8 @@ void MainWindow::buildChart(const vector<qreal>	&sample)
 
 void	MainWindow::buildEmpiricalFunction(const vector<qreal>	&sample)
 {
-	AxisHistogram	axisX;
-	AxisHistogram	axisY;
+	Axis			axisX;
+	Axis			axisY;
 	QValueAxis		*axisXX;
 	QValueAxis		*axisYY;
 
@@ -62,6 +62,13 @@ void	MainWindow::buildEmpiricalFunction(const vector<qreal>	&sample)
 		line->append(interval[i + 1], frequency[i + 1]);
 		
 		chart->addSeries(line);
+
+		QPen pen = line->pen();
+		pen.setWidth(3);
+		pen.setCapStyle(Qt::FlatCap);
+
+		line->setPen(pen);
+		
 		chart->setAxisX(axisXX, line);
 		chart->setAxisY(axisYY, line);
 	}

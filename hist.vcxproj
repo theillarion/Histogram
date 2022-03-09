@@ -191,13 +191,13 @@
     </QtUic>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AxisHistogram.cpp" />
+    <ClCompile Include="Axis.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Read.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AxisHistogram.hpp" />
+    <ClInclude Include="Axis.hpp" />
     <ClInclude Include="CalcEmpiricalFunction.hpp" />
     <ClInclude Include="CalcHistogram.hpp" />
     <ClInclude Include="Histogram.hpp" />

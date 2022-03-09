@@ -47,7 +47,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AxisHistogram.cpp">
+    <ClCompile Include="Axis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
@@ -70,7 +70,7 @@
     <ClInclude Include="Histogram.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AxisHistogram.hpp">
+    <ClInclude Include="Axis.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CalcEmpiricalFunction.hpp">

@@ -1,13 +1,13 @@
-#include "AxisHistogram.hpp"
+#include "Axis.hpp"
 
-void    AxisHistogram::initial(const QString &name_axis, const qreal       min,  const qreal       max,  const int count = 5)
+void    Axis::initial(const QString &name_axis, const qreal       min,  const qreal       max,  const int count = 5)
 {
     this->name_axis = name_axis;
     this->min = min;
     this->max = max;
     this->count = count;
 }
-QValueAxis  * AxisHistogram::getAxis()
+QValueAxis  * Axis::getAxis()
 {
     auto    *axis = new QValueAxis;
 
