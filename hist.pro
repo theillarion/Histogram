@@ -11,15 +11,16 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    ../../../source/repos/Project3/Project3/Read.cpp \
-    axishistogram.cpp \
-    main.cpp \
-    mainwindow.cpp
+    Read.cpp \
+    AxisHistogram.cpp \
+    Main.cpp \
+    MainWindow.cpp
 
 HEADERS += \
-    CalcHistogram.h \
-    axishistrogram.h \
-    mainwindow.h
+    CalcHistogram.hpp \
+    Axishistrogram.hpp \
+    Histogram.hpp \
+    Mainwindow.h
 
 FORMS += \
     mainwindow.ui
