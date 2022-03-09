@@ -73,6 +73,9 @@
     <ClInclude Include="AxisHistogram.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CalcEmpiricalFunction.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">

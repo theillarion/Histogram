@@ -198,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AxisHistogram.hpp" />
+    <ClInclude Include="CalcEmpiricalFunction.hpp" />
     <ClInclude Include="CalcHistogram.hpp" />
     <ClInclude Include="Histogram.hpp" />
     <QtMoc Include="MainWindow.hpp">
