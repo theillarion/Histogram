@@ -18,7 +18,7 @@ static bool	ft_validation(const	string	str) noexcept
 		return (false);
 	while (str[i])
 	{
-		if (!isdigit(str[i]) && str[i] != '.')
+		if (!isdigit(str[i]) && str[i] != '.' && str[i] != '-' && str[i] != 'e')
 			return (false);
 		++i;
 	}

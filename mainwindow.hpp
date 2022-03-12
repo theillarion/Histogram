@@ -13,7 +13,7 @@
 #include "Histogram.hpp"
 #include <tuple>
 
-#include "CalcEmpiricalFunction.hpp"
+#include "CalcFunctions.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -27,14 +27,20 @@ class MainWindow : public QMainWindow
 	QHBoxLayout	*layout;
 	QChart		*chart;
 	QChartView	*chartview;
+
+	QPen	getSettingsPen(QPen	oldPen);
 public:
 	MainWindow(QWidget *parent = nullptr);
 	~MainWindow();
    
-	void buildChart(const std::vector<qreal>	&sample);
-	void buildGraph(const std::vector<qreal>	&sample);
+	void	buildChart(const std::vector<qreal>	&sample);
+	void	buildEmpiricalFunction(std::vector<qreal>& sample);
+	//void buildGraph(const std::vector<qreal>	&sample);
 
-	void	buildEmpiricalFunction(const std::vector<qreal>& sample);
+	//QList<QPointF>	createXY(const qreal start, const qreal end, const qreal step, qreal(*fun)(qreal));
+
+	//void	buildSin();
+	//void	buildGraphic(std::vector<qreal>& sample);
 private:
 	Ui::MainWindow *ui;
 };

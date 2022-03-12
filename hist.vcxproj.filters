@@ -73,7 +73,7 @@
     <ClInclude Include="Axis.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CalcEmpiricalFunction.hpp">
+    <ClInclude Include="CalcFunctions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

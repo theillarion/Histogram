@@ -3,6 +3,7 @@
 #include <vector>
 #include <tuple>
 #include <algorithm>
+#include <boost/math/distributions/normal.hpp>
 
 template <typename Type>
 std::tuple<std::vector<Type>, std::vector<Type>>	calcEmpiricalFunction(const std::vector<Type>& sample)
@@ -35,8 +36,6 @@ std::tuple<std::vector<Type>, std::vector<Type>>	calcEmpiricalFunction(const std
 	interval.erase(std::unique(interval.begin(), interval.end()), interval.end());
 	// complete <interval>
 
-	frequency.push_back((double)0);
-
 	sum = 0;
 	countFinally = sample.size();
 	for (const auto& elem : countRepeat)
@@ -47,4 +46,23 @@ std::tuple<std::vector<Type>, std::vector<Type>>	calcEmpiricalFunction(const std
 	// complete <frequency>
 
 	return (std::make_tuple(interval, frequency));
+}
+
+template<typename Type>
+std::tuple<std::vector<Type>, std::vector<Type>>	calcNormalfunction(std::vector<Type>& sample)
+{
+	std::vector<Type>	valuesX;
+	std::vector<Type>	valuesY;
+
+	valuesX.resize(sample.size());
+	std::copy(sample.begin(), sample.end(), valuesX.begin());
+
+	std::sort(valuesX.begin(), valuesX.end());
+
+	valuesX.erase(std::unique(valuesX.begin(), valuesX.end()), valuesX.end());
+
+	for (const auto& elem : valuesX)
+		valuesY.push_back(boost::math::cdf(boost::math::normal(), elem));
+
+	return (std::make_tuple(valuesX, valuesY));
 }

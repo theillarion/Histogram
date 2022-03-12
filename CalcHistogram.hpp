@@ -3,6 +3,8 @@
 #include <vector>
 #include <algorithm>
 
+#define COUNT_INTERVALS 10
+
 template<typename Type>
 class CalcHistogram
 {
@@ -26,16 +28,23 @@ inline void CalcHistogram<Type>::calcInterval()
 {
     Type    temp;
     Type    step;
+    Type    min;
+    Type    max;
 
-    temp = sort_sample[0];
-    step = (sort_sample[sort_sample.size() - 1] - sort_sample[0]) / 10;
+    int k = 1 + round(log2(sort_sample.size()));
+    min = sort_sample.front();
+    max = sort_sample.back();
+    temp = min;
+    step = (max - min) / (k);
 
-    for (int i = 0; i < 10; i++)
+    interval.push_back(temp);
+    while (temp < max)
     {
-        interval.push_back(temp);
         temp += step;
+        interval.push_back(temp);
     }
-    interval.push_back(sort_sample[sort_sample.size() - 1]);
+    if (interval.size() == 1)
+        interval.push_back(temp);
 }
 
 template<typename Type>
@@ -43,14 +52,25 @@ inline void CalcHistogram<Type>::calcHeight()
 {
     Type    count_sample;
     Type    count_interval;
+    int     index;
     
     height.resize(interval.size() - 1);
 
     count_interval = interval.size();
+    index = 0;
     for (auto& elem : sort_sample)
     {
-        int index = 0;
-        for (int i = 0; i < count_interval - 1; i++)
+        if (elem <= interval.front())
+        {
+            height[0] += 1;
+            continue ;
+        }
+        if (elem >= interval.back())
+        {
+            height[height.size() - 1] += 1;
+            continue ;
+        }
+        for (int i = index; i < count_interval - 1; i++)
         {
             if (interval[i] <= elem && elem <= interval[i + 1])
             {

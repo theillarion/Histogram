@@ -62,8 +62,8 @@ inline std::tuple<QValueAxis*, QValueAxis*> Histogram<Type>::getAxesHistogram()
 	Axis	axisX;
 	Axis	axisY;
 
-	axisX.initial("X", interval[0], interval[interval.size() - 1], 11);
-	axisY.initial("Y", 0, *std::max_element(height.begin(), height.end()), 5);
+	axisX.initial("Интервал", interval[0], interval[interval.size() - 1], interval.size());
+	axisY.initial("Вероятность", 0, *std::max_element(height.begin(), height.end()), 5);
 
 	return (std::make_tuple(axisX.getAxis(), axisY.getAxis()));
 }
