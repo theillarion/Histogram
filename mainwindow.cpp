@@ -1,18 +1,84 @@
 #include "MainWindow.hpp"
 #include "ui_mainwindow.h"
-#include <numbers>
-#include <boost/math/distributions/normal.hpp>
 
 using std::vector;
 
+double	kolm_reverse(double	alpha)
+{
+	alpha = 1 - alpha;
+	return (sqrt(-0.5 * log(alpha / 2)));
+}
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
+	QMenu* file;
+	QAction*	result;
+	QAction*	quit;
+
 	ui->setupUi(this);
 	layout = new QHBoxLayout;
 	chart = new QChart;
 	chartview = new QChartView(chart);
 	chartview->chart()->setTheme(QChart::ChartThemeBlueCerulean);
 	chartview->setRenderHint(QPainter::Antialiasing);
+
+	result = new QAction(tr("&Результат"), this);
+	quit = new QAction(tr("&Выход"), this);
+	
+	file = menuBar()->addMenu(tr("&Файл"));
+	file->addAction(result);
+	file->addAction(quit);
+
+	connect(quit, &QAction::triggered, qApp, QApplication::quit);
+	connect(result, &QAction::triggered, this, &MainWindow::getResult);
+}
+
+void	MainWindow::getResult()
+{
+	double	max;
+	QString	result;
+	size_t	current_size;
+	size_t	sample_size;
+	bool	hypothesis_accepted;
+	qreal	kolm_alpha;
+
+	max = 0;
+	hypothesis_accepted = true;
+	kolm_alpha = kolm_reverse(alpha);
+	sample_size = sample.size();
+	current_size = resultNormal.size();
+
+	for (size_t i = 0; i < current_size; i++)
+		if (abs(resultEmpirical[i + 1] - resultNormal[i]) > max)
+			max = abs(resultEmpirical[i + 1] - resultNormal[i]);
+
+	if (max * sqrt(sample_size) > kolm_alpha)
+		hypothesis_accepted = false;
+
+	result = "Дано: ";
+	result += NEWLINE + QString("n = ") + QString::number(sample.size());
+	result += NEWLINE + QString::fromUtf8(CHAR_ALPHA) + " = " + QString::number(alpha);
+	result += NEWLINE + QString::fromUtf8(CHAR_MU) + " = " + QString::number(mean) + TAB + QString::fromUtf8(CHAR_DELTA) + " = " + QString::number(shifted_variance);
+	result += NEWLINE + QString::fromUtf8(CHARS_KOLM_R) + " = " + QString::number(kolm_alpha);
+	result += NEWLINE + QString::fromUtf8(CHARS_D_N) + " = " + QString::fromUtf8(FORMULA_D_N) + " = " + QString::number(max);
+	result += NEWLINE + QString::fromUtf8(CHAR_SQRT) + "n * " + QString::fromUtf8(CHARS_D_N) + " = " + QString::number(max * sqrt(sample_size));
+	result += NEWLINE + QString(NEWLINE) + QString::fromUtf8(CHAR_SQRT) + "n * " + QString::fromUtf8(CHARS_D_N) + QString((hypothesis_accepted) ? (" <= ") : (" > ")) + QString::fromUtf8(CHARS_KOLM_R);
+	result += " => " + QString("Гипотеза ") + QString((hypothesis_accepted) ? ("принята") : ("отвергнута"));
+	/*result += NEWLINE + QString::number(max * sqrt(sample_size)) + " (" + QString::fromUtf8(CHAR_SQRT) + QString::fromUtf8("n * ") + QString::fromUtf8(CHARS_D_N) + ") ";
+	result += (hypothesis_accepted) ? ("<=") : (">");
+	result += " " + QString::number(kolm_reverse(0.05)) + "(" + QString::fromUtf8(CHARS_KOLM_R) + ")";*/
+
+	QMessageBox::information(this, "Результат", result);
+}
+
+void MainWindow::initial(const std::vector<qreal>& sample, qreal alpha, qreal mean, qreal shifted_variance)
+{
+	this->alpha = alpha;
+	this->mean = mean;
+	this->shifted_variance = shifted_variance;
+	this->sample.resize(sample.size());
+
+	std::copy(sample.begin(), sample.end(), this->sample.begin());
 }
 
 void MainWindow::buildChart(const vector<qreal>	&sample)
@@ -31,15 +97,8 @@ void MainWindow::buildChart(const vector<qreal>	&sample)
 	chart->setAnimationOptions(QChart::SeriesAnimations);
 	chart->legend()->hide();
 	chart->isZoomed();
-
 	layout->addWidget(chartview);
 	ui->centralwidget->setLayout(layout);
-}
-
-double fff(double	x)
-{
-	double one_chart = 1 / sqrt(2 * std::numbers::pi);
-	return (one_chart * pow(std::numbers::e, -0.5 * pow(x, 2)));
 }
 
 QPen	MainWindow::getSettingsPen(QPen	oldPen = QPen())
@@ -54,12 +113,7 @@ QPen	MainWindow::getSettingsPen(QPen	oldPen = QPen())
 	return (newPen);
 }
 
-void	analysis(vector<qreal>	x, vector<qreal>	y_empirical, vector<qreal>	y_normal)
-{
-
-}
-
-void	MainWindow::buildEmpiricalFunction(vector<qreal>	&sample)
+void	MainWindow::buildEmpiricalFunction()
 {
 	Axis			axisX;
 	Axis			axisY;
@@ -67,10 +121,7 @@ void	MainWindow::buildEmpiricalFunction(vector<qreal>	&sample)
 	QValueAxis		*axisYY = new QValueAxis;;
 	QSplineSeries*	series = new QSplineSeries;
 	QLineSeries*	lines = new QLineSeries;
-	vector<qreal>	interval;
-	vector<qreal>	resultEmpirical;
-	vector<qreal>	resultNormal;
-	
+
 	std::tie(interval, resultEmpirical) = calcEmpiricalFunction(sample);
 	std::tie(std::ignore, resultNormal) = calcNormalfunction(sample);
 
@@ -80,12 +131,13 @@ void	MainWindow::buildEmpiricalFunction(vector<qreal>	&sample)
 	axisXX = axisX.getAxis();
 	axisYY = axisY.getAxis();
 
+	lines->append(interval.front(), resultEmpirical.front());
 	for (int i = 0; i < interval.size() - 1; i++)
 	{
-		lines->append(interval[i], resultEmpirical[i]);
-		lines->append(interval[i + 1], resultEmpirical[i]);
+		lines->append(interval[i], resultEmpirical[i + 1]);
+		lines->append(interval[i + 1], resultEmpirical[i + 1]);
 	}
-
+	lines->append(interval.back(), resultEmpirical.back());
 	lines->setColor(QColor::fromRgba(qRgb(255, 255, 0)));
 	lines->setName("Эмпирическая функция распределения");
 
@@ -96,14 +148,12 @@ void	MainWindow::buildEmpiricalFunction(vector<qreal>	&sample)
 	chart->setAxisX(axisXX, lines);
 	chart->setAxisY(axisYY, lines);
 
-	for (int i = 0; i < sample.size(); i++)
+	for (int i = 0; i < interval.size(); i++)
 		series->append(interval[i], resultNormal[i]);
 
 	series->setPen(getSettingsPen(series->pen()));
 	series->setColor(QColor::fromRgba(qRgb(255, 0, 0)));
-	series->setName("Функция нормального распределения (среднее = 0, выборочная дисперсия = 1)");
-
-	//analysis(interval, frequency, y);
+	series->setName("Функция нормального распределения (" + QString::fromUtf8(CHAR_MU) + " = 0, " + QString::fromUtf8(CHAR_DELTA) + " = 1)");
 
 	chart->addSeries(series);
 	chart->setAxisX(axisXX, series);
@@ -115,6 +165,11 @@ void	MainWindow::buildEmpiricalFunction(vector<qreal>	&sample)
 	
 	layout->addWidget(chartview);
 	ui->centralwidget->setLayout(layout);
+}
+
+MainWindow::~MainWindow()
+{
+	delete ui;
 }
 
 /*QList<QPointF>	MainWindow::createXY(const qreal start, const qreal end, const qreal step, qreal(*fun)(qreal))
@@ -220,8 +275,3 @@ void MainWindow::buildGraphic(vector<qreal>& sample)
 	ui->centralwidget->setLayout(layout);
 }*/
 
-
-MainWindow::~MainWindow()
-{
-	delete ui;
-}

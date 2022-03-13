@@ -3,27 +3,25 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication        a(argc, argv);
-    MainWindow          w;
-    QRect               screenGeometry;
-    std::vector<qreal>  sample;
-
-    screenGeometry = QGuiApplication::primaryScreen()->geometry();
-
-    w.setWindowTitle("GGWP");
-    w.setGeometry(QRect(300, 200, screenGeometry.width() - 600, screenGeometry.height() - 400));
+	QApplication        a(argc, argv);
+	MainWindow          w;
+	std::vector<qreal>  sample;
+	QRect               screenGeometry;
    
-    sample = ft_read_file("C:\\Users\\pro10\\OneDrive\\Документы\\matstat\\all\\10\\r2z2.csv");
-    srand(time(NULL));
-    //for (int i = 0; i < 10000; i++)
-    //    sample.push_back(1 + rand() % 10);
-    //sample = { 1, 2 };
-    //w.buildChart(sample);
-    w.buildEmpiricalFunction(sample);
-    //w.buildGraphic(sample);
-   // w.buildSin();
-    //w.buildCos();
-    w.show();
+	screenGeometry = QGuiApplication::primaryScreen()->geometry();
+	sample = ft_read_file("C:\\Users\\pro10\\OneDrive\\Документы\\matstat\\all\\10\\r2z2.csv");
 
-    return (a.exec());
+	w.initial(sample, 0.05, 0, 1);
+	w.setWindowTitle("GGWP");
+	w.setGeometry(QRect(300, 200, screenGeometry.width() - 600, screenGeometry.height() - 400));
+
+	w.buildEmpiricalFunction();
+	w.show();
+
+	return (a.exec());
 }
+
+//srand(time(NULL));
+   //for (int i = 0; i < 10000; i++)
+   //    sample.push_back(1 + rand() % 10);
+   //sample = { 1, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4};

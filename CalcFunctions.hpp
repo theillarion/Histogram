@@ -1,5 +1,8 @@
 #pragma once
 
+#define MEAN 0
+#define SHIFTED_VARIANCE 1
+
 #include <vector>
 #include <tuple>
 #include <algorithm>
@@ -40,9 +43,10 @@ std::tuple<std::vector<Type>, std::vector<Type>>	calcEmpiricalFunction(const std
 	countFinally = sample.size();
 	for (const auto& elem : countRepeat)
 	{
-		sum += elem;
 		frequency.push_back(sum / countFinally);
+		sum += elem;
 	}
+	frequency.push_back(sum / countFinally);
 	// complete <frequency>
 
 	return (std::make_tuple(interval, frequency));
@@ -62,7 +66,7 @@ std::tuple<std::vector<Type>, std::vector<Type>>	calcNormalfunction(std::vector<
 	valuesX.erase(std::unique(valuesX.begin(), valuesX.end()), valuesX.end());
 
 	for (const auto& elem : valuesX)
-		valuesY.push_back(boost::math::cdf(boost::math::normal(), elem));
+		valuesY.push_back(boost::math::cdf(boost::math::normal(MEAN, SHIFTED_VARIANCE), elem));
 
 	return (std::make_tuple(valuesX, valuesY));
 }
