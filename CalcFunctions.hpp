@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <tuple>
+#include <numbers>
 #include <algorithm>
 #include <boost/math/distributions/normal.hpp>
 
@@ -71,8 +72,12 @@ std::tuple<std::vector<Type>, std::vector<Type>>	calcNormalfunction(std::vector<
 	return (std::make_tuple(valuesX, valuesY));
 }
 
-template<typename Type>
-Type	kolm_reverse(Type alpha)
+template<typename Type> Type	kolm_reverse(Type alpha)
 {
-	return (sqrt(-0.5 * log(alpha / 2)));
+	return (sqrt(-(log(alpha / 2) / 2)));
+}
+
+template<typename Type> Type	kolm(double t)
+{
+	return (1 - 2 * std::pow(std::numbers::e, -2 * pow(t, 2)));
 }

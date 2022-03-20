@@ -43,12 +43,12 @@ MainWindow::Data_result	MainWindow::calcResult()
 			result.supreme = abs(resultEmpirical[i + 1] - resultNormal[i]);
 
 	result.stat = result.supreme * sqrt(result.n);
+	result.p_value = 1 - alpha;//kolm<qreal>(ceil(result.alpha_critical));
 
 	if (result.stat > result.alpha_critical)
 		result.is_accepted = false;
 
 	result.interval_critical = QString("Критическая область (правосторонняя): A = {%1 : T(%1) > %2}").arg(QString::fromUtf8(CHARS_SAMPLE)).arg("C крит");
-		
 
 	return (result);
 }
@@ -69,8 +69,9 @@ void	MainWindow::ouputResult()
 	result += QString("Вычислено: \n");
 	result += QString("%1 = %2 \n").arg(UTF8(CHARS_KOLM_R)).arg(data.alpha_critical);
 	result += QString("%1 = %2 = %3 \n").arg(UTF8(CHARS_D_N)).arg(UTF8(FORMULA_D_N)).arg(data.supreme);
-	result += QString("T = %1 * %2 = %3 \n").arg(UTF8(CHAR_SQRT) + 'n').arg(UTF8(CHARS_D_N)).arg(data.stat);
+	result += QString("Статистика = %1 * %2 = %3 \n").arg(UTF8(CHAR_SQRT) + 'n').arg(UTF8(CHARS_D_N)).arg(data.stat);
 	result += QString("Критическая точка = %1 \n").arg(data.alpha_critical);
+	result += QString("P значение = %1 \n").arg(data.p_value);
 	result += QString("%1 \n\n").arg(data.interval_critical);
 	result += QString("Вывод: \n");
 	result += QString("%1%2 %3 %4 => Гипотеза %5\n").arg(UTF8(CHAR_SQRT) + 'n').arg(UTF8(CHARS_D_N)).arg(data.is_accepted ? "<=" : ">")
