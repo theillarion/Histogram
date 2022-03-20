@@ -3,8 +3,6 @@
 #include <vector>
 #include <algorithm>
 
-#define COUNT_INTERVALS 10
-
 template<typename Type>
 class CalcHistogram
 {

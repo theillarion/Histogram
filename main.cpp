@@ -20,8 +20,3 @@ int main(int argc, char *argv[])
 
 	return (a.exec());
 }
-
-//srand(time(NULL));
-   //for (int i = 0; i < 10000; i++)
-   //    sample.push_back(1 + rand() % 10);
-   //sample = { 1, 1, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4};

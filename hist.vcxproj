@@ -200,6 +200,7 @@
     <ClInclude Include="Axis.hpp" />
     <ClInclude Include="CalcFunctions.hpp" />
     <ClInclude Include="CalcHistogram.hpp" />
+    <ClInclude Include="DefineSymbols.hpp" />
     <ClInclude Include="Histogram.hpp" />
     <QtMoc Include="MainWindow.hpp">
     </QtMoc>

@@ -3,12 +3,6 @@
 
 using std::vector;
 
-double	kolm_reverse(double	alpha)
-{
-	alpha = 1 - alpha;
-	return (sqrt(-0.5 * log(alpha / 2)));
-}
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
 	QMenu* file;
@@ -30,43 +24,57 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	file->addAction(quit);
 
 	connect(quit, &QAction::triggered, qApp, QApplication::quit);
-	connect(result, &QAction::triggered, this, &MainWindow::getResult);
+	connect(result, &QAction::triggered, this, &MainWindow::ouputResult);
 }
 
-void	MainWindow::getResult()
+MainWindow::Data_result	MainWindow::calcResult()
 {
-	double	max;
-	QString	result;
-	size_t	current_size;
-	size_t	sample_size;
-	bool	hypothesis_accepted;
-	qreal	kolm_alpha;
+	Data_result	result;
+	size_t		current_size;
 
-	max = 0;
-	hypothesis_accepted = true;
-	kolm_alpha = kolm_reverse(alpha);
-	sample_size = sample.size();
+	result.is_accepted = true;
+	result.supreme = 0;
+	result.n = sample.size();
+	result.alpha_critical = kolm_reverse<qreal>(alpha);
 	current_size = resultNormal.size();
-
+	
 	for (size_t i = 0; i < current_size; i++)
-		if (abs(resultEmpirical[i + 1] - resultNormal[i]) > max)
-			max = abs(resultEmpirical[i + 1] - resultNormal[i]);
+		if (abs(resultEmpirical[i + 1] - resultNormal[i]) > result.supreme)
+			result.supreme = abs(resultEmpirical[i + 1] - resultNormal[i]);
 
-	if (max * sqrt(sample_size) > kolm_alpha)
-		hypothesis_accepted = false;
+	result.stat = result.supreme * sqrt(result.n);
 
-	result = "Дано: ";
-	result += NEWLINE + QString("n = ") + QString::number(sample.size());
-	result += NEWLINE + QString::fromUtf8(CHAR_ALPHA) + " = " + QString::number(alpha);
-	result += NEWLINE + QString::fromUtf8(CHAR_MU) + " = " + QString::number(mean) + TAB + QString::fromUtf8(CHAR_DELTA) + " = " + QString::number(shifted_variance);
-	result += NEWLINE + QString::fromUtf8(CHARS_KOLM_R) + " = " + QString::number(kolm_alpha);
-	result += NEWLINE + QString::fromUtf8(CHARS_D_N) + " = " + QString::fromUtf8(FORMULA_D_N) + " = " + QString::number(max);
-	result += NEWLINE + QString::fromUtf8(CHAR_SQRT) + "n * " + QString::fromUtf8(CHARS_D_N) + " = " + QString::number(max * sqrt(sample_size));
-	result += NEWLINE + QString(NEWLINE) + QString::fromUtf8(CHAR_SQRT) + "n * " + QString::fromUtf8(CHARS_D_N) + QString((hypothesis_accepted) ? (" <= ") : (" > ")) + QString::fromUtf8(CHARS_KOLM_R);
-	result += " => " + QString("Гипотеза ") + QString((hypothesis_accepted) ? ("принята") : ("отвергнута"));
-	/*result += NEWLINE + QString::number(max * sqrt(sample_size)) + " (" + QString::fromUtf8(CHAR_SQRT) + QString::fromUtf8("n * ") + QString::fromUtf8(CHARS_D_N) + ") ";
-	result += (hypothesis_accepted) ? ("<=") : (">");
-	result += " " + QString::number(kolm_reverse(0.05)) + "(" + QString::fromUtf8(CHARS_KOLM_R) + ")";*/
+	if (result.stat > result.alpha_critical)
+		result.is_accepted = false;
+
+	result.interval_critical = QString("Критическая область (правосторонняя): A = {%1 : T(%1) > %2}").arg(QString::fromUtf8(CHARS_SAMPLE)).arg("C крит");
+		
+
+	return (result);
+}
+
+void	MainWindow::ouputResult()
+{
+	Data_result	data;
+	QString		result;
+
+	data = calcResult();
+
+	#define UTF8(arg) QString::fromUtf8(arg)
+
+	result = QString("Дано: \n");
+	result += QString("n = %1 \n").arg(data.n);
+	result += QString("%1 = %2 \n").arg(UTF8(CHAR_ALPHA)).arg(alpha);
+	result += QString("%1 = %2\t%3 = %4 \n\n").arg(UTF8(CHAR_MU)).arg(mean).arg(UTF8(CHAR_DELTA)).arg(shifted_variance);
+	result += QString("Вычислено: \n");
+	result += QString("%1 = %2 \n").arg(UTF8(CHARS_KOLM_R)).arg(data.alpha_critical);
+	result += QString("%1 = %2 = %3 \n").arg(UTF8(CHARS_D_N)).arg(UTF8(FORMULA_D_N)).arg(data.supreme);
+	result += QString("T = %1 * %2 = %3 \n").arg(UTF8(CHAR_SQRT) + 'n').arg(UTF8(CHARS_D_N)).arg(data.stat);
+	result += QString("Критическая точка = %1 \n").arg(data.alpha_critical);
+	result += QString("%1 \n\n").arg(data.interval_critical);
+	result += QString("Вывод: \n");
+	result += QString("%1%2 %3 %4 => Гипотеза %5\n").arg(UTF8(CHAR_SQRT) + 'n').arg(UTF8(CHARS_D_N)).arg(data.is_accepted ? "<=" : ">")
+		.arg(UTF8(CHARS_KOLM_R)).arg(data.is_accepted ? "принята" : "отвергнута");
 
 	QMessageBox::information(this, "Результат", result);
 }
@@ -115,21 +123,16 @@ QPen	MainWindow::getSettingsPen(QPen	oldPen = QPen())
 
 void	MainWindow::buildEmpiricalFunction()
 {
-	Axis			axisX;
-	Axis			axisY;
-	QValueAxis		*axisXX = new QValueAxis;
-	QValueAxis		*axisYY = new QValueAxis;;
+	QValueAxis		*axisX;
+	QValueAxis		*axisY;
 	QSplineSeries*	series = new QSplineSeries;
 	QLineSeries*	lines = new QLineSeries;
 
 	std::tie(interval, resultEmpirical) = calcEmpiricalFunction(sample);
-	std::tie(std::ignore, resultNormal) = calcNormalfunction(sample);
+	std::tie(std::ignore, resultNormal) = calcNormalfunction(sample, mean, shifted_variance);
 
-	axisX.initial("X", interval[0], interval[interval.size() - 1], 20);
-	axisY.initial("F(X)", 0, 1, 11);
-
-	axisXX = axisX.getAxis();
-	axisYY = axisY.getAxis();
+	axisX = makeAxis("X", interval[0], interval[interval.size() - 1], 20);
+	axisY = makeAxis("F(X)", 0, 1, 11);
 
 	lines->append(interval.front(), resultEmpirical.front());
 	for (int i = 0; i < interval.size() - 1; i++)
@@ -138,30 +141,30 @@ void	MainWindow::buildEmpiricalFunction()
 		lines->append(interval[i + 1], resultEmpirical[i + 1]);
 	}
 	lines->append(interval.back(), resultEmpirical.back());
-	lines->setColor(QColor::fromRgba(qRgb(255, 255, 0)));
-	lines->setName("Эмпирическая функция распределения");
-
-	chart->addSeries(lines);
-
-	lines->setPen(getSettingsPen(lines->pen()));
-	
-	chart->setAxisX(axisXX, lines);
-	chart->setAxisY(axisYY, lines);
 
 	for (int i = 0; i < interval.size(); i++)
 		series->append(interval[i], resultNormal[i]);
 
-	series->setPen(getSettingsPen(series->pen()));
-	series->setColor(QColor::fromRgba(qRgb(255, 0, 0)));
-	series->setName("Функция нормального распределения (" + QString::fromUtf8(CHAR_MU) + " = 0, " + QString::fromUtf8(CHAR_DELTA) + " = 1)");
+	lines->setName("Эмпирическая функция распределения");
+	series->setName(QString("Функция нормального распределения (%1 = %2, %3 = %4)")
+		.arg(QString::fromUtf8(CHAR_MU)).arg(mean).arg(QString::fromUtf8(CHAR_DELTA)).arg(shifted_variance));
 
+	lines->setColor(QColor::fromRgba(qRgb(255, 255, 0)));
+	series->setColor(QColor::fromRgba(qRgb(255, 0, 0)));
+
+	chart->addSeries(lines);
 	chart->addSeries(series);
-	chart->setAxisX(axisXX, series);
-	chart->setAxisY(axisYY, series);
+
+	lines->setPen(getSettingsPen(lines->pen()));
+	series->setPen(getSettingsPen(series->pen()));
+
+	chart->setAxisX(axisX, lines);
+	chart->setAxisY(axisY, lines);
+	chart->setAxisX(axisX, series);
+	chart->setAxisY(axisY, series);
 
 	chart->setAnimationOptions(QChart::SeriesAnimations);
 	chart->setTitle("Эмпирическая функция распределения с наложением нормальной функции распределения");
-	//chart->legend()->hide();
 	
 	layout->addWidget(chartview);
 	ui->centralwidget->setLayout(layout);
@@ -171,107 +174,3 @@ MainWindow::~MainWindow()
 {
 	delete ui;
 }
-
-/*QList<QPointF>	MainWindow::createXY(const qreal start, const qreal end, const qreal step, qreal(*fun)(qreal))
-{
-	QList<QPointF>	result;
-
-	for (qreal i = start; i <= end; i += step)
-	{
-		result.push_back(QPointF(i, (*fun)(i)));
-	}
-	return (result);
-}
-
-void MainWindow::buildSin()
-{
-	Axis			axisX;
-	Axis			axisY;
-	QValueAxis		*axisXX;
-	QValueAxis		*axisYY;
-	QSplineSeries	*series;
-	QSplineSeries	*series2;
-	QSplineSeries	*series3;
-
-	axisXX = new QValueAxis;
-	axisYY = new QValueAxis;
-	series = new QSplineSeries;
-	series2 = new QSplineSeries;
-	series3 = new QSplineSeries;
-
-	vector<double>	y;
-
-	for (int i = -20; i <= 20; i++)
-		y.push_back(tan(i));
-
-	axisX.initial("X", -20, 20, 11);
-	axisY.initial("Y", *std::min_element(y.begin(), y.end()), *std::max_element(y.begin(), y.end()), 5);
-	axisXX = axisX.getAxis();
-	axisYY = axisY.getAxis();
-	
-	series->append(createXY(-20, 20, 1, sin));
-	series->setName("Sin");
-	chart->addSeries(series);
-	chart->setAxisX(axisXX, series);
-	chart->setAxisY(axisYY, series);
-
-	series2->append(createXY(-20, 20, 1, cos));
-	series2->setName("Cos");
-	chart->addSeries(series2);
-	chart->setAxisX(axisXX, series2);
-	chart->setAxisY(axisYY, series2);
-	auto t = createXY(-10, 10, 1, tan);
-
-	series3->append(createXY(-20, 20, 1, tan));
-	series3->setName("Tan");
-	chart->addSeries(series3);
-	chart->setAxisX(axisXX, series3);
-	chart->setAxisY(axisYY, series3);
-
-	chart->setAnimationOptions(QChart::SeriesAnimations);
-	//chart->legend()->hide();
-	chart->setTitle("Синусоида и косинусоида");
-	layout->addWidget(chartview);
-	ui->centralwidget->setLayout(layout);
-}
-
-
-void MainWindow::buildGraphic(vector<qreal>& sample)
-{
-	Axis			axisX;
-	Axis			axisY;
-	QValueAxis*		axisXX;
-	QValueAxis*		axisYY;
-	QSplineSeries*	series;
-	vector<qreal>	y;
-
-	axisXX = new QValueAxis;
-	axisYY = new QValueAxis;
-	series = new QSplineSeries;
-
-	std::sort(sample.begin(), sample.end());
-	for (const auto& x : sample)
-		y.push_back(fff(x));
-
-
-	axisX.initial("X", sample.front(), sample.back(), 11);
-	axisY.initial("Y", *std::min_element(y.begin(), y.end()), *std::max_element(y.begin(), y.end()), 5);
-	axisXX = axisX.getAxis();
-	axisYY = axisY.getAxis();
-
-	for (int i = 0; i < sample.size(); i++)
-	{
-		series->append(sample[i], y[i]);
-	}
-	series->setName("F(x)");
-	chart->addSeries(series);
-	chart->setAxisX(axisXX, series);
-	chart->setAxisY(axisYY, series);
-
-	chart->setAnimationOptions(QChart::SeriesAnimations);
-	//chart->legend()->hide();
-	chart->setTitle("Синусоида и косинусоида");
-	layout->addWidget(chartview);
-	ui->centralwidget->setLayout(layout);
-}*/
-

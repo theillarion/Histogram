@@ -3,16 +3,16 @@
 #include <QString>
 #include <QValueAxis>
 
+QValueAxis* makeAxis(const QString& name_axis, const qreal       min, const qreal       max, const int count);
+
 class Axis
 {
 private:
-	QString		name_axis;
-	qreal		min;
-	qreal		max;
-	int			count;
+	QValueAxis*	axis;
 public:
-	Axis() : name_axis{ "Axis" }, min{ 0 }, max{ 0 }, count{ 0 } {}
-	Axis(const QString& name_axis, const qreal       min, const qreal       max, const int count) : name_axis{ name_axis }, min{ min }, max{ max }, count{ count } {}
+	Axis() : axis(new QValueAxis) {}
+	Axis(const QString name_axis, const qreal min, const qreal max, const int count = 5);
+	
 	void		initial(const QString& name_axis, const qreal       min, const qreal       max, const int count);
-	QValueAxis* getAxis();
+	QValueAxis* getAxis() const;
 };

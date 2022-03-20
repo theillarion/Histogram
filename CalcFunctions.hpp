@@ -1,12 +1,12 @@
 #pragma once
 
-#define MEAN 0
-#define SHIFTED_VARIANCE 1
-
 #include <vector>
 #include <tuple>
 #include <algorithm>
 #include <boost/math/distributions/normal.hpp>
+
+using boost::math::cdf;
+using boost::math::normal;
 
 template <typename Type>
 std::tuple<std::vector<Type>, std::vector<Type>>	calcEmpiricalFunction(const std::vector<Type>& sample)
@@ -14,8 +14,8 @@ std::tuple<std::vector<Type>, std::vector<Type>>	calcEmpiricalFunction(const std
 	std::vector<Type>	interval;
 	std::vector<Type>	frequency;
 	std::vector<Type>	countRepeat;
-	size_t			countFinally;
-	Type			sum;
+	size_t				countFinally;
+	Type				sum;
 
 	interval.resize(sample.size());
 	std::copy(sample.cbegin(), sample.cend(), interval.begin());
@@ -53,7 +53,7 @@ std::tuple<std::vector<Type>, std::vector<Type>>	calcEmpiricalFunction(const std
 }
 
 template<typename Type>
-std::tuple<std::vector<Type>, std::vector<Type>>	calcNormalfunction(std::vector<Type>& sample)
+std::tuple<std::vector<Type>, std::vector<Type>>	calcNormalfunction(std::vector<Type>& sample, Type mean, Type shifted_variance)
 {
 	std::vector<Type>	valuesX;
 	std::vector<Type>	valuesY;
@@ -66,7 +66,13 @@ std::tuple<std::vector<Type>, std::vector<Type>>	calcNormalfunction(std::vector<
 	valuesX.erase(std::unique(valuesX.begin(), valuesX.end()), valuesX.end());
 
 	for (const auto& elem : valuesX)
-		valuesY.push_back(boost::math::cdf(boost::math::normal(MEAN, SHIFTED_VARIANCE), elem));
+		valuesY.push_back(cdf(normal(mean, shifted_variance), elem));
 
 	return (std::make_tuple(valuesX, valuesY));
+}
+
+template<typename Type>
+Type	kolm_reverse(Type alpha)
+{
+	return (sqrt(-0.5 * log(alpha / 2)));
 }

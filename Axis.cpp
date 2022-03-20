@@ -1,19 +1,35 @@
 #include "Axis.hpp"
 
+Axis::Axis(const QString name_axis, const qreal min, const qreal max, const int count) : axis(new QValueAxis)
+{
+    axis->setTitleText(name_axis);
+    axis->setRange(min, max);
+    if (count != 5)
+        axis->setTickCount(count);
+}
+
 void    Axis::initial(const QString &name_axis, const qreal       min,  const qreal       max,  const int count = 5)
 {
-    this->name_axis = name_axis;
-    this->min = min;
-    this->max = max;
-    this->count = count;
+    axis->setTitleText(name_axis);
+    axis->setRange(min, max);
+    if (count != 5)
+        axis->setTickCount(count);
 }
-QValueAxis  * Axis::getAxis()
+QValueAxis  * Axis::getAxis() const
 {
-    auto    *axis = new QValueAxis;
+    return (axis);
+}
+
+QValueAxis* makeAxis(const QString& name_axis, const qreal       min, const qreal       max, const int count = 5)
+{
+    QValueAxis* axis;
+
+    axis = new QValueAxis;
 
     axis->setTitleText(name_axis);
     axis->setRange(min, max);
-    axis->setTickCount(count);
+    if (count != 5)
+        axis->setTickCount(count);
 
     return (axis);
 }

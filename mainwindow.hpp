@@ -8,25 +8,11 @@
 #include <QValueAxis>
 #include <vector>
 #include <tuple>
-#include <vector>
+
 #include "CalcHistogram.hpp"
 #include "Histogram.hpp"
-#include <tuple>
-
 #include "CalcFunctions.hpp"
-
-#define ALPHA		0.05
-
-#define NEWLINE			"\n"
-#define TAB				"\t"
-#define N_LOWER			"\u2099"
-#define CHAR_SQRT		"\u221a"
-#define CHAR_ALPHA		"\u03b1"
-#define CHAR_MU			"\u03bc"
-#define CHAR_DELTA		"\u03b4\u00b2"
-#define CHARS_D_N		"D\u2099"
-#define CHARS_KOLM_R	"Kolm\u207B\u00B9(1 - \u03b1)"
-#define FORMULA_D_N		"sup|F\u2099(x) - G(x)|"
+#include "DefineSymbols.hpp"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -46,12 +32,24 @@ class MainWindow : public QMainWindow
 	std::vector<qreal>	resultEmpirical;
 	std::vector<qreal>	resultNormal;
 
-	qreal	alpha;
-	qreal	mean;
-	qreal	shifted_variance;
+	struct Data_result
+	{
+		size_t	n;
+		qreal	supreme;
+		qreal	stat;
+		qreal	alpha_critical;
+		qreal	p_value;
+		QString	interval_critical;
+		bool	is_accepted;
+	};
 
-	QPen	getSettingsPen(QPen	oldPen);
-	void	getResult();
+	qreal		alpha;
+	qreal		mean;
+	qreal		shifted_variance;
+
+	QPen		getSettingsPen(QPen	oldPen);
+	void		ouputResult();
+	Data_result	calcResult();
 
 	Ui::MainWindow* ui;
 public:
