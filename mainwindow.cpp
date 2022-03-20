@@ -5,7 +5,7 @@ using std::vector;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-	QMenu* file;
+	QMenu*		file;
 	QAction*	result;
 	QAction*	quit;
 
